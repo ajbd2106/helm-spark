@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ printf "spark-%s" .Release.Name | trunc 24 }}"
+  labels:
+    name: "{{ printf "spark-%s" .Release.Name | trunc 24 }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ports:
+    # the port that this service should serve on
+  - name: spark
+    port: {{ .Values.master.service.sparkIntPort }}
+    targetPort: {{ .Values.master.service.sparkExtPort }}
+    protocol: {{ .Values.master.service.protocol }}
+  - name: webui
+    port: {{ .Values.master.service.webuiIntPort }}
+    targetPort: {{ .Values.master.service.webuiExtPort }}
+    protocol: {{ .Values.master.service.protocol }}
+  selector:
+    name: "{{ printf "spark-master-%s" .Release.Name | trunc 24 }}"

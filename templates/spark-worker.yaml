@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "{{ printf "spark-worker-%s" .Release.Name | trunc 24 }}"
+  labels:
+    name: "{{ printf "spark-workeri-%s" .Release.Name | trunc 24 }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        name: "{{ printf "spark-worker-%s" .Release.Name | trunc 24 }}"
+    spec:
+      containers:
+      - name: "{{ printf "spark-worker-%s" .Release.Name | trunc 24 }}"
+        image: {{ .Values.Image }}
+        imagePullPolicy : {{ .Values.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.worker.service.sparkIntPort }}
+          protocol: {{ .Values.worker.service.protocol }}
+        command:
+         - "/bin/bash"
+         - "-c"
+         - "--"
+        args :
+         - 'unset SPARK_MASTER_PORT ; /opt/spark/sbin/start-slave.sh spark://{{ printf "spark-%s" .Release.Name | trunc 24 }}:7077 ; sleep infinity'

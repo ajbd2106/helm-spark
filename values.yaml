@@ -1,0 +1,16 @@
+Image: armdocker.rnd.ericsson.se/aia/base/aia-docker-spark:testing
+pullPolicy: IfNotPresent
+master:
+  replicaCount: 1
+  service:
+    sparkExtPort: 7077
+    sparkIntPort: 7077
+    webuiExtPort: 8080
+    webuiIntPort: 8080
+    protocol: TCP
+worker:
+  replicaCount: 3
+  service:
+    sparkExtPort: 7078
+    sparkIntPort: 7078
+    protocol: TCP

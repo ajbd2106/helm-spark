@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "{{ printf "spark-master-%s" .Release.Name | trunc 24 }}"
+  labels:
+    name: "{{ printf "spark-master-%s" .Release.Name | trunc 24 }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.master.replicaCount }}
+  template:
+    metadata:
+      labels:
+        name: "{{ printf "spark-master-%s" .Release.Name | trunc 24 }}"
+    spec:
+      containers:
+      - name: "{{ printf "spark-master-%s" .Release.Name | trunc 24 }}"
+        image: "{{.Values.Image}}"
+        imagePullPolicy: "{{.Values.pullPolicy}}"
+        ports:
+        - containerPort: {{.Values.master.service.sparkIntPort}}
+          protocol: {{.Values.master.service.protocol}}
+        command:
+         - "/bin/bash"
+         - "-c"
+         - "--"
+        args :
+         - 'unset SPARK_MASTER_PORT; echo "$(hostname -i) {{ printf "spark-%s" .Release.Name | trunc 24 }}" >> /etc/hosts ; /opt/spark/sbin/start-master.sh --ip {{ printf "spark-%s" .Release.Name | trunc 24 }} --port 7077 ; sleep infinity'
